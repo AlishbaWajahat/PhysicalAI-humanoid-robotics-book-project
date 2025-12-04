@@ -152,30 +152,11 @@ graph TD
 
 **IMPORTANT**: Follow spec requirement for incremental execution:
 
-1. Execute only the next 1-3 tasks
-2. Wait for user to reply "done" or "next"
-3. Never execute all tasks at once
-4. Verify each phase completes before moving to next
+1. Execute tasks 1 by 1
+2. Never execute all tasks at once
+3. Verify each phase completes before moving to next
 
-### Example Session:
 
-**Agent**: "Step 1: Run this command to initialize Docusaurus"
-```bash
-npx create-docusaurus@latest my-website classic --javascript
-```
-
-**User**: "done"
-
-**Agent**: "Step 2: Move files to root"
-```bash
-cd my-website && mv * .. && mv .gitignore .. && cd .. && rmdir my-website
-```
-
-**User**: "done"
-
-**Agent**: "Step 3: Update configuration..." (and so on)
-
----
 
 ## Success Validation
 

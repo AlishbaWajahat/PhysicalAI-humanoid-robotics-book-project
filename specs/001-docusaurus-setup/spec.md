@@ -94,14 +94,7 @@ As a developer, I need the initial setup committed with proper message format so
 - **SC-004**: package.json contains only essential dependencies plus docusaurus-plugin-sass and sass
 - **SC-005**: Git commit exists with exact message format and is pushed to remote
 
-## Execution Mode (MANDATORY)
 
-Work exactly like real Spec-Kit Plus workflow:
-
-1. Give me only the next 1–3 terminal commands
-2. Wait for me to reply "done" or "next"
-3. Never dump everything at once
-4. After completion, proceed to `/sp.plan` phase
 
 ## Assumptions
 
