@@ -1,18 +1,31 @@
 <!--
 Sync Impact Report:
-Version change: 1.0.0 → 1.1.0 (MINOR - Added Rule 13: Pedagogical Structure)
-Modified principles: None (existing rules unchanged)
-Added sections: Rule 13: Pedagogical Structure Mandatory
-Removed sections: None
-Reason for amendment: Critical gap identified - textbook requires explicit pedagogical scaffolding standards (learning objectives, worked examples, progressive difficulty) that differ from technical documentation
+Version change: 1.1.0 → 1.2.0 (MINOR - Added Rules 14, 15, 16, 17; Modified Rule 4 to remove image requirements)
+Modified principles:
+  - Rule 4: Removed image format requirements (WebP/300KB) - text-only beginner approach
+  - Documentation Standards: Removed "Image and Media Standards" section entirely
+Added sections:
+  - Rule 14: Strict Adherence to User Instructions
+  - Rule 15: Skills Invocation for Book Content
+  - Rule 16: Smart Minimalism and Anti-Hallucination
+  - Rule 17: Post-Implementation Commit Offering (moved from informal practice)
+Removed sections:
+  - Image and Media Standards (lines 104-109) - beginner text-only approach
+Reason for amendment:
+  1. User requires explicit guarantee that agent generates ONLY what is requested
+  2. Beginner-focused approach eliminates images/videos at this stage
+  3. Skills framework integration needed for consistent book authoring
+  4. Hallucination prevention and minimalism formalized as constitutional requirement
+  5. Post-implementation commit offering made explicit governance rule
 Templates requiring updates:
   ✅ constitution.md (this file)
-  ⚠ Spec template - MUST now include learning objectives and prerequisite sections for chapter specs
-  ⚠ Plan template - MUST now include pedagogical progression planning
-  ⚠ Tasks template - MUST now include tasks for creating worked examples, exercises, and chapter summaries
+  ⚠ Spec template - Remove image/media planning sections; add skills invocation guidance
+  ⚠ Plan template - Add minimalism validation checkpoint; remove media asset planning
+  ⚠ Tasks template - Add skill invocation tasks for book chapters; remove image optimization tasks
 Follow-up TODOs:
-  - Phase 2: Add Rule 14 (Interactive Learning Elements) after first chapter tested
-  - Phase 3: Add Rule 15 (Accessibility WCAG 2.1 AA) during QA phase
+  - Review all existing specs to remove image/video requirements
+  - Update professional-author skill to align with Rule 15
+  - Create pre-commit hook to validate Rule 14 compliance (no unsolicited files)
 -->
 
 # Physical AI & Humanoid Robotics Textbook Constitution
@@ -35,7 +48,7 @@ Every code example, installation procedure, simulation script, and hardware setu
 **Rationale**: Students need a reliable reference environment. Reproducibility failures undermine trust and learning outcomes in a hardware-software co-design curriculum.
 
 ### Rule 4: Code Quality Enforcement Non-Negotiable
-All Python code MUST pass Black (formatting), Ruff (linting), and mypy (type checking) with zero errors before commit. All filenames MUST use kebab-case. All citations MUST follow IEEE format [1]. All images MUST be WebP format under 300 KB. No placeholder text, no TODO comments in published content, no commented-out code.
+All Python code MUST pass Black (formatting), Ruff (linting), and mypy (type checking) with zero errors before commit. All filenames MUST use kebab-case. All citations MUST follow IEEE format [1]. No placeholder text, no TODO comments in published content, no commented-out code.
 
 **Rationale**: Professional-grade textbooks demand professional-grade code standards. Inconsistency degrades readability and student comprehension.
 
@@ -84,6 +97,26 @@ Every chapter MUST include: (1) Learning objectives using measurable verbs (unde
 
 **Rationale**: Textbooks require pedagogical scaffolding that differs fundamentally from documentation. Progressive difficulty builds confidence and prevents cognitive overload. Explicit learning objectives enable students to self-assess mastery and instructors to design assessments aligned with content.
 
+### Rule 14: Strict Adherence to User Instructions
+The agent MUST generate ONLY files, features, and content explicitly mentioned in user prompts and approved specifications. NEVER add unsolicited improvements, refactorings, additional features, helper functions, or documentation beyond what is explicitly requested. If a user prompt specifies "create files X and Y," create exactly X and Y—nothing more. When in doubt about scope, STOP and ask: "Should I also create [potential addition]?" Await explicit approval before proceeding.
+
+**Rationale**: Beginner users require predictable, controlled outcomes. Unsolicited additions create confusion, complicate learning, and violate trust. Strict scope adherence ensures every generated artifact maps 1:1 to explicit user intent, making the development process transparent and teachable.
+
+### Rule 15: Skills Invocation for Book Content
+When authoring or updating any chapter, module introduction, or educational content for the Physical AI & Humanoid Robotics textbook, the agent MUST invoke the professional-author skill defined in `.claude/skills/professional-author/SKILL.md`. This skill contains the authoritative writing standards, formatting requirements, pedagogical patterns, and quality checks. Never bypass the skill for "quick edits"—every content generation pass MUST apply the full skill framework to ensure consistency, beginner-friendliness, and production quality.
+
+**Rationale**: The professional-author skill encapsulates hard-won lessons about beginner pedagogy, reproducibility verification, tone, and structure. Manual adherence risks drift and quality degradation. Mandatory skill invocation guarantees every chapter meets the same rigorous standard and leverages reference examples.
+
+### Rule 16: Smart Minimalism and Anti-Hallucination
+Every generated artifact MUST achieve its goal with the minimum necessary complexity. Prefer simple, proven patterns over clever abstractions. NEVER invent APIs, package names, configuration options, hardware specifications, or technical facts—verify ALL technical claims against official 2025 documentation using real-time lookup (Rule 2). When uncertain, surface the uncertainty explicitly: "I could not verify [claim]; proceeding requires [specific documentation or user confirmation]." Avoid speculation, hedging language, and "it should work" statements. If a fact cannot be verified, STOP and request clarification.
+
+**Rationale**: Hallucinated technical details cause catastrophic failures in robotics (installation breaks, hardware damage, wasted hours). Minimalism reduces surface area for errors and cognitive load for beginners. Explicit uncertainty prevents false confidence and builds trust. Smart means knowing when to stop and ask, not guessing eloquently.
+
+### Rule 17: Post-Implementation Commit Offering
+After successfully completing ANY implementation work (spec → plan → tasks → execution), the agent MUST offer to create a git commit with the changes. Present the offer as: "✅ Implementation complete. Create a commit for these changes? [Proposed commit message following Rule 9]" Wait for user approval before executing git commands. NEVER auto-commit without explicit user consent. If approved, follow the commit workflow in CLAUDE.md including rule-prefixed messages and full git status/diff review.
+
+**Rationale**: Formalizes the commit decision as a user choice, not an agent assumption. Prevents unwanted commits while ensuring no completed work is accidentally left uncommitted. Makes git operations transparent and educational for beginner users learning version control alongside robotics.
+
 ## Documentation Standards
 
 ### Citation Format
@@ -100,13 +133,6 @@ All code blocks MUST include:
 - File path comment on first line if representing a file (e.g., `# File: src/robot_controller.py`)
 - Inline comments explaining non-obvious logic
 - Expected output as comment block after code
-
-### Image and Media Standards
-- WebP format exclusively
-- Max 300 KB file size (use lossy compression if needed)
-- Descriptive alt text for accessibility
-- Caption with figure number (e.g., "Figure 3.2: ROS 2 node graph for navigation stack")
-- Source attribution if not original
 
 ### Simulation Asset Management
 All 3D models, URDF files, mesh files, and simulation worlds MUST:
@@ -130,7 +156,7 @@ Constitution amendments require:
 
 ### Compliance Verification
 The `/status` slash command MUST return:
-- Compliance status for each of the 12 rules
+- Compliance status for each of the 17 rules
 - Last commit verification (rule number present in message)
 - Last documentation verification timestamp (Rule 2)
 - Template synchronization status
@@ -146,4 +172,5 @@ The `/status` slash command MUST return:
 - CI/CD pipeline gates: reproducibility tests (Rule 3), external dependency audit (Rule 8), documentation verification timestamps (Rule 2)
 - Human review required for: safety content (Rule 6), architectural decisions (Rule 11), constitutional amendments (this section)
 
-**Version**: 1.1.0 | **Ratified**: 2025-12-04 | **Last Amended**: 2025-12-04
+**Version**: 1.2.0 | **Ratified**: 2025-12-04 | **Last Amended**: 2025-12-05
+
