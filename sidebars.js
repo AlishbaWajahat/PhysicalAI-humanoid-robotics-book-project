@@ -20,12 +20,33 @@ const sidebars = {
 
   // But you can create a sidebar manually
   tutorialSidebar: [
-    'hello',
     {
       type: 'category',
-      label: 'TutoriaL',
-      items: ['tutorial-basics/create-a-document'],
+      label: 'PART 0: INTRODUCTION TO PHYSICAL AI AND HUMANOID ROBOTICS',
+      link: {
+        type: 'doc',
+        id: 'part0-introduction/part0-introduction'
+      },
+      items: [
+        'part0-introduction/chapter-1-why-physical-ai-is-the-next-frontier',
+        'part0-introduction/chapter-2-the-new-workflow-spec-driven-physical-ai'
+      ]
     },
+    {
+      type: 'category',
+      label: 'PART 1: THE ROBOTIC NERVOUS SYSTEM (ROS 2)',
+      link: {
+        type: 'doc',
+        id: 'part1-module1/part1-introduction'
+      },
+      items: [
+        'part1-module1/chapter-3-ros-2-crash-course',
+        'part1-module1/chapter-4-talking-to-robots',
+        'part1-module1/chapter-5-building-real-packages',
+        'part1-module1/chapter-6-bridging-ai-agents-to-ros',
+        'part1-module1/part-1-self-assessment'
+      ]
+    }
   ],
 
 };

@@ -28,3 +28,56 @@
   --ifm-color-primary-lightest: #4fddbf;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
+
+/* ===== Custom Sidebar Bullets ===== */
+
+/* Add empty circle bullets to all sidebar links */
+.theme-doc-sidebar-item-link .menu__link {
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.theme-doc-sidebar-item-link .menu__link::before {
+  content: '';
+  position: absolute;
+  left: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 4px;
+  border: 1px solid var(--ifm-color-primary);
+  border-radius: 50%;
+  background-color: transparent;
+  transition: background-color 0.2s ease;
+}
+
+/* Filled circle ONLY for active/current page (no hover) */
+.theme-doc-sidebar-item-link .menu__link--active::before {
+  background-color: var(--ifm-color-primary);
+}
+
+/* Add bullets to category labels */
+.theme-doc-sidebar-item-category > .menu__list-item-collapsible .menu__link {
+  position: relative;
+  padding-left: 1.5rem;
+  font-weight: bold;
+}
+
+.theme-doc-sidebar-item-category > .menu__list-item-collapsible .menu__link::before {
+  content: '';
+  position: absolute;
+  left: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 4px;
+  border: 1px solid var(--ifm-color-primary);
+  border-radius: 50%;
+  background-color: transparent;
+  transition: background-color 0.2s ease;
+}
+
+/* Filled circle for active category (no hover) */
+.theme-doc-sidebar-item-category > .menu__list-item-collapsible .menu__link--active::before {
+  background-color: var(--ifm-color-primary);
+}

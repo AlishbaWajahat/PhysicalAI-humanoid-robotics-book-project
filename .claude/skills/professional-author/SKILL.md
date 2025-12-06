@@ -65,7 +65,7 @@ Follow the markdown patterns demonstrated in the AI-Native book (stored in `refe
 - Use syntax highlighting and file path comments
 
 ### 6. Module Hierarchy Structure
-- Every 'module' MUST start with an intro document FIRST
+- Every 'part' must link with an intro document with brief overview.
 - Then follow with individual chapter documents as specified
 - Maintain consistent naming and numbering throughout
 
@@ -140,7 +140,7 @@ One-sentence teaser for the next chapter \`\`\`
 -   **Bold** for key commands and file names
 -   `> Tip:` for pro shortcuts
 -   `> Warning:` for common failures
--   **NO IMAGES OR VIDEOS** — This is beginner-focused text content only
+-   **INCLUDE IMAGES** — Use Mermaid diagrams and visual aids to enhance understanding (automatic generation)
 
 ### 3. Language: Beginner-First, Professional Tone
 
@@ -167,7 +167,7 @@ are known to work first-try on clean systems
 -   ASCII art or text-based diagrams when helpful
 -   Tables for comparisons (topics vs services vs actions)
 -   Code examples and terminal outputs as primary visual aids
--   No images, screenshots, or videos (beginner-focused text content only)
+-   Mermaid diagrams, conceptual illustrations, and visual aids encouraged
 
 ## FORMATTING REFERENCE
 
@@ -197,3 +197,83 @@ humanoid robotics engineers\
 **Reproducibility Guarantee:** All commands sourced from official 2025
 docs --- will work first-try for any reader with the correct setup.\
 **Content Policy:** Text-focused, no images/videos, beginner-friendly approach.
+## IMAGE GENERATION GUIDELINES (AUTOMATIC)
+
+### When to Add Images
+- **Always generate images automatically** when concepts are visual in nature
+- No need to ask permission - include images proactively
+- Any time a diagram makes understanding 10x faster than text
+
+### Image Types & Tools
+
+#### 1. Mermaid Diagrams (Primary Tool - Built into Docusaurus)
+Use Mermaid for:
+- **Flowcharts**: Build processes, decision trees, algorithm flows
+- **Sequence diagrams**: Message passing, ROS 2 communication
+- **Class diagrams**: Node architecture, inheritance
+- **State diagrams**: Robot states, FSMs
+- **Architecture diagrams**: System components, data flow
+
+Example usage:
+```mermaid
+graph LR
+    A[ROS 2 Node] -->|publishes| B[Topic]
+    B -->|subscribes| C[Another Node]
+```
+
+#### 2. Conceptual Illustrations
+- Use simple SVG or ASCII when Mermaid isn't suitable
+- Keep diagrams clean and minimal
+- Focus on clarity over complexity
+
+### Implementation Rules
+1. **Generate automatically** - Don't ask user for approval
+2. **Keep it simple** - Prefer Mermaid over complex tools
+3. **Add context** - Always explain the diagram in 1-2 sentences before and after
+4. **Make it scannable** - Use clear labels, consistent colors
+5. **Test rendering** - Ensure Mermaid syntax is valid
+
+### Image Placement
+- Place diagrams **after** introducing the concept in text
+- Use diagrams to **reinforce** understanding, not replace explanation
+- Add caption or description immediately after diagram
+- Reference diagram in text: "As shown in the diagram above..."
+
+### Examples of When to Use
+
+**Architecture Diagrams:**
+- ROS 2 node graph showing publishers/subscribers
+- System architecture (sensors → processing → actuators)
+- Package structure and dependencies
+
+**Process Flowcharts:**
+- Build and compile process (colcon build workflow)
+- Launch file execution flow
+- Message callback pipeline
+
+**Concept Visualizations:**
+- Coordinate frame transformations (TF tree)
+- Parameter server hierarchy
+- Action client-server interaction
+
+**Comparison Diagrams:**
+- Topics vs Services vs Actions
+- ROS 1 vs ROS 2 architecture
+- Different DDS implementations
+
+### Quality Standards
+- **Clarity First**: Every element must serve understanding
+- **Consistent Style**: Use same color scheme and shapes throughout book
+- **Professional**: Clean, well-aligned, properly labeled
+- **Beginner-Friendly**: Avoid overwhelming with too much detail
+
+### Mermaid Syntax Quick Reference
+```
+graph TD    - Top Down flowchart
+graph LR    - Left Right flowchart  
+sequenceDiagram - Sequence/interaction
+classDiagram - Class/component structure
+stateDiagram-v2 - State machines
+```
+
+**Remember**: Images are now **required** when they enhance understanding. Generate them automatically without asking permission.
