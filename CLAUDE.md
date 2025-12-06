@@ -208,3 +208,12 @@ Wait for consent; never auto-create ADRs. Group related decisions (stacks, authe
 
 ## Code Standards
 See `.specify/memory/constitution.md` for code quality, testing, performance, security, and architecture principles.
+
+## Active Technologies
+- MDX (Markdown + JSX) for Docusaurus 3.9.2 + Docusaurus 3.9.2, @mdx-js/react ^3.0.0, React ^19.0.0 (002-part0-introduction)
+- File system (`docs/` directory with MDX files) (002-part0-introduction)
+- MDX (Markdown + JSX), Docusaurus 3.9.2 + Docusaurus 3.9.2, Mermaid, React (003-part0-content)
+- Static MDX files in docs/part0-introduction/ (003-part0-content)
+
+## Recent Changes
+- 002-part0-introduction: Added MDX (Markdown + JSX) for Docusaurus 3.9.2 + Docusaurus 3.9.2, @mdx-js/react ^3.0.0, React ^19.0.0

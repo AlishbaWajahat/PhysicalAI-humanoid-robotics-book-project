@@ -120,10 +120,5 @@ As a content author, I need each file to have proper MDX frontmatter and minimal
 ## Non-Goals *(optional)*
 
 - Writing actual content for any of the three documents
-- Creating images, diagrams, or media assets
 - Setting up navigation beyond the basic hierarchical structure
 - Creating additional chapters beyond the two specified
-- Implementing interactive components or custom React elements
-- Setting up search functionality
-- Creating chapter summaries or learning objectives (content-level work)
-- Styling or theming customization
