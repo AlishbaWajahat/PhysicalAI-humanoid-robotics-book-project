@@ -8,7 +8,7 @@ Constitution Rules Satisfied: Rule 1, Rule 2, Rule 3, Rule 6, Rule 7
 Goal Create a detailed, production-ready spec.md that fully defines Part 1: The Robotic Nervous System (ROS 2). This spec will drive the /sp.plan phase to produce a beginner-friendly, hands-on module that teaches readers to build and control the "nervous system" of a humanoid robot using ROS 2, bridging their AI knowledge to physical control.
 Target Audience & Skill Level - Readers who completed Part 0 (Introduction) or equivalent - Basic Python + AI/LLM familiarity from Part 0 - Zero prior ROS 2 or robotics experience - Comfortable with terminal commands from Part 0
 Learning Objectives After Part 1, every reader must be able to: - Understand ROS 2 architecture and key communication patterns (nodes, topics, services, actions) - Create and visualize basic ROS 2 packages for humanoid robots (URDF/Xacro, publishers/subscribers) - Build real workspaces with colcon, launch files, and parameters - Bridge Python AI agents to ROS 2 for sending commands and reading sensors - Pass the interactive self-assessment with 80 %+ score
-Content Scope (4 Chapters + Self-Assessment + Part Overview) **Part 1 Overview** (docs/part1-introduction.mdx) • ~2000 words • Brief overview of the part, linked to the Part 1 folder • What readers will learn (ROS 2 as the "nervous system" of robots) • How it connects to embodied intelligence and future modules • Quick motivation: "Turn your AI agents into robot controllers"
+Content Scope (4 Chapters + Self-Assessment + Part Overview) **Part 1 Overview** (docs/part1-module1/part1-module1.mdx) • ~2000 words • Brief overview of the part, linked to the Part 1 folder • What readers will learn (ROS 2 as the "nervous system" of robots) • How it connects to embodied intelligence and future modules • Quick motivation: "Turn your AI agents into robot controllers"
 **Chapter 3 – ROS 2 Crash Course ** • ~4000 words • Core architecture: nodes, topics, services, actions • rclpy basics (50 lines max for first node) • Hands-on: first publisher/subscriber (talker/listener demo)
 **Chapter 4 – Talking to Robots ** • ~4000 words • URDF/Xacro for humanoid description (simple arm/leg models) • Joint state publisher + robot state publisher • Visualizing in RViz2 (joint states, TF frames)
 **Chapter 5 – Building Real Packages ** • ~4000 words • colcon workspace from scratch • Python + C++ package templates • Launch files & parameter management (YAML configs)
@@ -126,7 +126,7 @@ As a learner, I want to validate my understanding through interactive assessment
 - **FR-015**: System MUST bridge digital agents (LLMs) to physical actions via rclpy
 
 #### Part 1 Overview Requirements
-- **FR-016**: System MUST create Part 1 overview document (docs/part1-module1/part1-introduction.mdx) with ~2000 words
+- **FR-016**: System MUST create Part 1 overview document (docs/part1-module1/part1-module1.mdx) with ~2000 words
 - **FR-017**: System MUST provide brief overview of the part, linked to the Part 1 folder
 - **FR-018**: System MUST explain what readers will learn (ROS 2 as the "nervous system" of robots)
 - **FR-019**: System MUST describe how Part 1 connects to embodied intelligence and future modules

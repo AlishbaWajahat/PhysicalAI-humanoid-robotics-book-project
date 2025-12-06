@@ -64,7 +64,7 @@ specs/004-ros2-nervous-system/
 
 ```text
 docs/part1-module1/
-├── part1-introduction.mdx                           # Part overview (2k words)
+├── part1-module1.mdx                           # Part overview (2k words)
 ├── chapter-3-ros-2-crash-course.mdx                 # Chapter 3 (4k words)
 ├── chapter-4-talking-to-robots.mdx                  # Chapter 4 (4k words)
 ├── chapter-5-building-real-packages.mdx             # Chapter 5 (4k words)

@@ -45,7 +45,7 @@
 ### File Structure
 ```
 docs/part1-module1/
-├── part1-introduction.mdx          # Part overview (~2000 words)
+├── part1-module1.mdx          # Part overview (~2000 words)
 ├── chapter-3-ros-2-crash-course.mdx # ROS 2 fundamentals (~4000 words)
 ├── chapter-4-talking-to-robots.mdx  # Robot description (~4000 words)
 ├── chapter-5-building-real-packages.mdx # Package development (~4000 words)

@@ -9,7 +9,7 @@
 ## 1. Content Entities
 
 ### Part 1 Overview Document
-- **File**: docs/part1-introduction.mdx
+- **File**: docs/part1-module1.mdx
 - **Type**: MDX document
 - **Word Count**: ~2000 words
 - **Purpose**: Introduction to ROS 2 as the "nervous system" of robots
