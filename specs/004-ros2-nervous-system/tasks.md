@@ -22,7 +22,7 @@
 
 **Goal**: Establish shared resources needed by all user stories
 
-- [X] T004 Verify Part 1 category link in sidebars.js points to part1-introduction.mdx
+- [X] T004 Verify Part 1 category link in sidebars.js points to part1-module1.mdx
 
 ---
 
@@ -34,12 +34,12 @@
 
 **Files Created**:
 - docs/part1-module1/chapter-3-ros-2-crash-course.mdx
-- docs/part1-module1/part1-introduction.mdx
+- docs/part1-module1/part1-module1.mdx
 
 ### Implementation Tasks
 
 - [X] T005 [US1] Invoke professional-author skill per Rule 15
-- [X] T006 [US1] Create docs/part1-module1/part1-introduction.mdx with valid YAML frontmatter
+- [X] T006 [US1] Create docs/part1-module1/part1-module1.mdx with valid YAML frontmatter
 - [X] T007 [US1] Write Learning Objectives section (3-5 actionable objectives)
 - [X] T008 [US1] Write Why This Matters in 2025 section (ROS 2 as robot nervous system)
 - [X] T009 [US1] Write ROS 2 architecture definition in plain English (simple then technical)

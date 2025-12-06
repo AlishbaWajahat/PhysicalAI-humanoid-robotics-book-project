@@ -37,7 +37,7 @@ const sidebars = {
       label: 'PART 1: THE ROBOTIC NERVOUS SYSTEM (ROS 2)',
       link: {
         type: 'doc',
-        id: 'part1-module1/part1-introduction'
+        id: 'part1-module1/part1-module1'
       },
       items: [
         'part1-module1/chapter-3-ros-2-crash-course',
