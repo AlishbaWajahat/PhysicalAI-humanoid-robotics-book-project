@@ -214,6 +214,8 @@ See `.specify/memory/constitution.md` for code quality, testing, performance, se
 - File system (`docs/` directory with MDX files) (002-part0-introduction)
 - MDX (Markdown + JSX), Docusaurus 3.9.2 + Docusaurus 3.9.2, Mermaid, React (003-part0-content)
 - Static MDX files in docs/part0-introduction/ (003-part0-content)
+- Python 3.13 (backend), JavaScript/React 19 (frontend) (005-rag-chatbot)
+- Python 3.13+ (backend), JavaScript/React 19 (frontend with Docusaurus 3.9.2) (005-rag-chatbot)
 
 ## Recent Changes
 - 002-part0-introduction: Added MDX (Markdown + JSX) for Docusaurus 3.9.2 + Docusaurus 3.9.2, @mdx-js/react ^3.0.0, React ^19.0.0
