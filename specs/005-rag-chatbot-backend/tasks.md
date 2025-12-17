@@ -81,9 +81,9 @@ Can be tested by entering search queries and verifying that the system returns r
 
 ### Tasks
 
-- [ ] T019 [P] [US2] Enhance Qdrant retrieval tool to support search queries (FR-009)
-- [ ] T020 [US2] Update RAG agent to handle search queries in addition to questions
-- [ ] T021 [US2] Add search-specific response formatting
+- [X] T019 [P] [US2] Enhance Qdrant retrieval tool to support search queries (FR-009)
+- [X] T020 [US2] Update RAG agent to handle search queries in addition to questions
+- [X] T021 [US2] Add search-specific response formatting
 
 ---
 
@@ -97,10 +97,10 @@ Can be tested by asking metadata questions and verifying that the system provide
 
 ### Tasks
 
-- [ ] T022 [US3] Enhance content extraction to capture metadata (chapters, parts, summaries) (FR-011)
-- [ ] T023 [US3] Update Qdrant storage to include metadata indexing
-- [ ] T024 [US3] Update RAG agent to handle metadata queries specifically
-- [ ] T025 [US3] Implement metadata response formatting
+- [X] T022 [US3] Enhance content extraction to capture metadata (chapters, parts, summaries) (FR-011)
+- [X] T023 [US3] Update Qdrant storage to include metadata indexing
+- [X] T024 [US3] Update RAG agent to handle metadata queries specifically
+- [X] T025 [US3] Implement metadata response formatting
 
 ---
 
@@ -111,11 +111,11 @@ Complete the implementation with incremental indexing and configuration manageme
 
 ### Tasks
 
-- [ ] T026 [P] Implement incremental indexing functionality to handle new book content (FR-005)
-- [ ] T027 [P] Add environment configuration validation (FR-012)
-- [ ] T028 Add performance monitoring to meet <5 second response time (SC-001)
-- [ ] T029 Add error handling for Qdrant unavailability (from Edge Cases)
-- [ ] T030 Update documentation and create usage examples
+- [X] T026 [P] Implement incremental indexing functionality to handle new book content (FR-005)
+- [X] T027 [P] Add environment configuration validation (FR-012)
+- [X] T028 Add performance monitoring to meet <5 second response time (SC-001)
+- [X] T029 Add error handling for Qdrant unavailability (from Edge Cases)
+- [X] T030 Update documentation and create usage examples
 
 ---
 
