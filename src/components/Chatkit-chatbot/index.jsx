@@ -81,19 +81,31 @@ const ChatkitChatbot = () => {
 
   // Auto-detect backend URL based on environment
   const getBackendUrl = () => {
+    // SSR safety check
+    if (typeof window === 'undefined') {
+      return 'https://alishba20-05-robotics-book.hf.space/chatkit';
+    }
+
     // Check if running locally
-    if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+    if (window.location.hostname === 'localhost') {
       return 'http://localhost:8001/chatkit';
     }
-    // Production: Use HF Space URL (update YOUR_SPACE_NAME)
+
+    // Production: Use HF Space URL
     return 'https://alishba20-05-robotics-book.hf.space/chatkit';
+  };
+
+  // Get domain key with SSR safety
+  const getDomainKey = () => {
+    if (typeof window === 'undefined') return 'production';
+    return window.location.hostname === 'localhost' ? 'local-dev' : 'production';
   };
 
   // Initialize ChatKit with custom backend configuration
   const { control } = useChatKit({
     api: {
       url: getBackendUrl(),
-      domainKey: window.location.hostname === 'localhost' ? 'local-dev' : 'production',
+      domainKey: getDomainKey(),
       fetch: customFetch,
     },
     startScreen: {
