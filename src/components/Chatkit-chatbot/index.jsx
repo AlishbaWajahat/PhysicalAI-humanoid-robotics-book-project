@@ -97,8 +97,14 @@ const ChatkitChatbot = () => {
 
   // Get domain key with SSR safety
   const getDomainKey = () => {
-    if (typeof window === 'undefined') return 'production';
-    return window.location.hostname === 'localhost' ? 'local-dev' : 'production';
+    if (typeof window === 'undefined') {
+      return 'domain_pk_6942f62367488190a66b67f9ac877c900da9b549c5f0bd9c';
+    }
+
+    // Use local-dev for localhost, real domain key for production
+    return window.location.hostname === 'localhost'
+      ? 'local-dev'
+      : 'domain_pk_6942f62367488190a66b67f9ac877c900da9b549c5f0bd9c';
   };
 
   // Initialize ChatKit with custom backend configuration
