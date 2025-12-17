@@ -224,48 +224,46 @@ const ChatkitChatbot = () => {
         </button>
       )}
 
-      {/* Chat panel */}
-      {isOpen && (
-        <div className={styles.chatPanel}>
-          {/* Premium header with gradient title and close button */}
-          <div className={styles.chatHeader}>
-            <h3 className={styles.chatTitle}>Humanoid Robotics Assistant</h3>
-            <button
-              className={styles.closeButton}
-              onClick={toggleChat}
-              aria-label="Close chatbot"
-              title="Close"
-            >
-              <CloseIcon />
-            </button>
-          </div>
-
-          {/* Selected text context display */}
-          {selectedText && (
-            <div className={styles.selectedTextBox}>
-              <div className={styles.selectedTextHeader}>
-                <span className={styles.selectedTextLabel}>Selected text:</span>
-                <button
-                  className={styles.clearTextButton}
-                  onClick={clearSelectedText}
-                  aria-label="Clear selected text"
-                >
-                  Clear
-                </button>
-              </div>
-              <p className={styles.selectedTextContent}>
-                "{selectedText.substring(0, 200)}
-                {selectedText.length > 200 ? '...' : ''}"
-              </p>
-            </div>
-          )}
-
-          {/* ChatKit React Component */}
-          <div className={styles.chatContent}>
-            <ChatKit control={control} />
-          </div>
+      {/* Chat panel - Always mounted, visibility controlled by CSS */}
+      <div className={styles.chatPanel} style={{ display: isOpen ? 'flex' : 'none' }}>
+        {/* Premium header with gradient title and close button */}
+        <div className={styles.chatHeader}>
+          <h3 className={styles.chatTitle}>Humanoid Robotics Assistant</h3>
+          <button
+            className={styles.closeButton}
+            onClick={toggleChat}
+            aria-label="Close chatbot"
+            title="Close"
+          >
+            <CloseIcon />
+          </button>
         </div>
-      )}
+
+        {/* Selected text context display */}
+        {selectedText && (
+          <div className={styles.selectedTextBox}>
+            <div className={styles.selectedTextHeader}>
+              <span className={styles.selectedTextLabel}>Selected text:</span>
+              <button
+                className={styles.clearTextButton}
+                onClick={clearSelectedText}
+                aria-label="Clear selected text"
+              >
+                Clear
+              </button>
+            </div>
+            <p className={styles.selectedTextContent}>
+              "{selectedText.substring(0, 200)}
+              {selectedText.length > 200 ? '...' : ''}"
+            </p>
+          </div>
+        )}
+
+        {/* ChatKit React Component - Always mounted for persistence */}
+        <div className={styles.chatContent}>
+          <ChatKit control={control} />
+        </div>
+      </div>
     </>
   );
 };
