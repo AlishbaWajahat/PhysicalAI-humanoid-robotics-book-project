@@ -102,10 +102,21 @@ const ChatkitChatbot = () => {
   };
 
   // Initialize ChatKit with custom backend configuration
+  const backendUrl = getBackendUrl();
+  const domainKey = getDomainKey();
+
+  // Debug logging
+  console.log('🔧 ChatKit Configuration:', {
+    backendUrl,
+    domainKey,
+    sessionId,
+    hostname: typeof window !== 'undefined' ? window.location.hostname : 'SSR'
+  });
+
   const { control } = useChatKit({
     api: {
-      url: getBackendUrl(),
-      domainKey: getDomainKey(),
+      url: backendUrl,
+      domainKey: domainKey,
       fetch: customFetch,
     },
     startScreen: {
