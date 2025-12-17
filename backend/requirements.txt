@@ -1,0 +1,38 @@
+# ============================================
+# RAG Chatbot Backend Dependencies
+# For Hugging Face Spaces Deployment
+# Version ranges allow pip to resolve dependencies automatically
+# ============================================
+
+# Vector Database
+qdrant-client>=1.12.1
+
+# Embeddings & LLM
+cohere>=5.5.0
+openai>=1.87.0
+openai-agents[litellm]>=0.1.0
+litellm>=1.80.9
+
+# Web Framework
+fastapi>=0.124.4
+uvicorn[standard]>=0.38.0
+
+# ChatKit
+openai-chatkit>=1.4.0
+
+# Database
+sqlalchemy>=2.0.35
+psycopg2-binary>=2.9.9
+
+# Configuration & Data
+python-dotenv>=1.0.1
+pydantic>=2.7.4
+markdown>=3.5.2
+pyyaml>=6.0.1
+python-frontmatter>=1.0.1
+
+# Development (optional for HF - can remove these)
+pytest>=8.2.2
+black>=24.4.2
+ruff>=0.4.10
+mypy>=1.10.0

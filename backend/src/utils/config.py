@@ -6,6 +6,72 @@ from typing import Optional
 from dotenv import load_dotenv
 
 
+def validate_config(config: dict) -> list:
+    """
+    Validate the configuration values.
+
+    Args:
+        config: Configuration dictionary to validate
+
+    Returns:
+        list: List of validation errors, empty if all validations pass
+    """
+    errors = []
+
+    # Check required keys exist
+    required_keys = ['qdrant_api_key', 'qdrant_url', 'cohere_api_key', 'gemini_api_key']
+    for key in required_keys:
+        if not config.get(key):
+            errors.append(f"Missing required configuration key: {key}")
+
+    # Validate URL format
+    import re
+    url_pattern = re.compile(
+        r'^https?://'  # http:// or https://
+        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?|'  # domain...
+        r'localhost|'  # localhost...
+        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
+        r'(?::\d+)?'  # optional port
+        r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+
+    if config.get('qdrant_url') and not url_pattern.match(config['qdrant_url']):
+        errors.append(f"Invalid URL format for qdrant_url: {config['qdrant_url']}")
+
+    # Validate numeric values
+    try:
+        chunk_size = config['chunk_size']
+        if not (100 <= chunk_size <= 2048):
+            errors.append(f"chunk_size ({chunk_size}) must be between 100 and 2048")
+    except (ValueError, TypeError):
+        errors.append("chunk_size must be a valid integer")
+
+    try:
+        chunk_overlap = config['chunk_overlap']
+        if not (0 <= chunk_overlap <= 500):
+            errors.append(f"chunk_overlap ({chunk_overlap}) must be between 0 and 500")
+    except (ValueError, TypeError):
+        errors.append("chunk_overlap must be a valid integer")
+
+    try:
+        top_k = config['top_k_retrieval']
+        if not (1 <= top_k <= 20):
+            errors.append(f"top_k_retrieval ({top_k}) must be between 1 and 20")
+    except (ValueError, TypeError):
+        errors.append("top_k_retrieval must be a valid integer")
+
+    # Check API key formats (basic validation)
+    if config.get('cohere_api_key') and len(config['cohere_api_key']) < 10:
+        errors.append("cohere_api_key appears to be too short (likely invalid)")
+
+    if config.get('gemini_api_key') and len(config['gemini_api_key']) < 10:
+        errors.append("gemini_api_key appears to be too short (likely invalid)")
+
+    if config.get('qdrant_api_key') and len(config['qdrant_api_key']) < 10:
+        errors.append("qdrant_api_key appears to be too short (likely invalid)")
+
+    return errors
+
+
 def load_config() -> dict:
     """
     Load configuration from environment variables.
@@ -27,12 +93,11 @@ def load_config() -> dict:
         'top_k_retrieval': int(os.getenv('TOP_K_RETRIEVAL', '5'))
     }
 
-    # Validate required configuration
-    required_keys = ['qdrant_api_key', 'qdrant_url', 'cohere_api_key', 'gemini_api_key']
-    missing_keys = [key for key in required_keys if not config[key]]
-
-    if missing_keys:
-        raise ValueError(f"Missing required configuration keys: {', '.join(missing_keys)}")
+    # Validate configuration
+    validation_errors = validate_config(config)
+    if validation_errors:
+        error_msg = "\n".join(validation_errors)
+        raise ValueError(f"Configuration validation failed:\n{error_msg}")
 
     return config
 

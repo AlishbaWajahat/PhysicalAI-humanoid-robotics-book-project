@@ -81,3 +81,34 @@
 .theme-doc-sidebar-item-category > .menu__list-item-collapsible .menu__link--active::before {
   background-color: var(--ifm-color-primary);
 }
+
+/* ===== Premium Chatbot Integration ===== */
+
+/* Ensure chatbot overlays properly on all Docusaurus pages */
+#__docusaurus {
+  position: relative;
+  z-index: 1;
+}
+
+/* Smooth scroll behavior for better UX with chatbot */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Adjust main content when chatbot is present */
+@media (max-width: 768px) {
+  .main-wrapper {
+    padding-bottom: 80px; /* Ensure content doesn't hide behind chatbot button */
+  }
+}
+
+/* Font loading optimization for chatbot fonts */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-display: swap;
+}

@@ -40,6 +40,18 @@ const config = {
     locales: ['en'],
   },
 
+  customFields: {
+    CHATKIT_BACKEND_URL: 'http://localhost:8001/chatkit',
+  },
+
+  scripts: [
+    {
+      src: 'https://cdn.platform.openai.com/deployments/chatkit/chatkit.js',
+      async: true,
+      type: 'module',
+    },
+  ],
+
   presets: [
     [
       'classic',

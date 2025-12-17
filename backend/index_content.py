@@ -2,405 +2,290 @@
 Content indexing script for the RAG Chatbot Backend.
 Extracts content from MDX files, chunks it, creates embeddings, and stores in Qdrant.
 """
+
 import os
 import re
-from pathlib import Path
-from typing import List, Dict, Any, Tuple
-from markdown import markdown
-import frontmatter  # For parsing MD/MDX files with metadata
-
 import sys
-import os
-# Add the backend directory to the path to allow imports
-sys.path.append(os.path.join(os.path.dirname(__file__)))
+from pathlib import Path
+from typing import List, Dict, Any
 
-from src.utils.config import get_cohere_config, get_indexing_config
-from src.utils.qdrant_client import create_qdrant_client, get_or_create_collection, upsert_vectors
-from src.utils.logger import get_logger, log_info, log_error, log_debug
-from src.utils.models import BookContent, TextChunk, Embedding, VectorRecord
-
-# Initialize logger
-logger = get_logger(__name__)
-
-# Import Cohere
+from markdown import markdown
+import frontmatter
 import cohere
 
-def extract_content(docs_path: str = "../docs/") -> List[BookContent]:
-    """
-    Extract text content from MDX files in the specified docs directory.
+# Add backend path
+sys.path.append(os.path.join(os.path.dirname(__file__)))
 
-    Args:
-        docs_path: Path to the docs directory (default: "../docs/" - relative to backend)
+from src.utils.config import (
+    get_cohere_config,
+    get_indexing_config,
+    get_retrieval_config,
+)
+from src.utils.qdrant_client import (
+    create_qdrant_client,
+    get_or_create_collection,
+    upsert_vectors,
+)
+from src.utils.logger import get_logger, log_info, log_error, log_debug
+from src.utils.models import BookContent, TextChunk, Embedding
 
-    Returns:
-        List of BookContent objects with extracted content
-    """
-    log_info(f"Starting content extraction from {docs_path}")
+from qdrant_client.http import models
 
-    book_contents = []
+logger = get_logger(__name__)
+
+# -------------------------------------------------------------------
+# CONTENT EXTRACTION
+# -------------------------------------------------------------------
+
+def extract_content(docs_path: str = "docs/") -> List[BookContent]:
+    log_info(f"Extracting content from {docs_path}")
     docs_dir = Path(docs_path)
+    contents = []
 
-    if not docs_dir.exists():
-        log_error(f"Docs directory does not exist: {docs_path}")
-        return book_contents
-
-    # Find all MD and MDX files in the docs directory
     md_files = list(docs_dir.rglob("*.md")) + list(docs_dir.rglob("*.mdx"))
-
-    log_info(f"Found {len(md_files)} files to process")
 
     for file_path in md_files:
         try:
-            # Read the file content
-            with open(file_path, 'r', encoding='utf-8') as f:
-                content = f.read()
+            raw = file_path.read_text(encoding="utf-8")
+            post = frontmatter.loads(raw)
 
-            # Parse the frontmatter and content
-            try:
-                post = frontmatter.loads(content)
-                text_content = post.content
-                metadata = post.metadata
-            except Exception:
-                # If frontmatter parsing fails, treat the whole content as text
-                text_content = content
-                metadata = {}
+            plain_text = extract_plain_text(post.content)
+            rel_path = f"docs/{file_path.relative_to(docs_dir).as_posix()}"
 
-            # Convert MDX/Markdown to plain text if needed
-            # Remove JSX components and extract plain text
-            plain_text = extract_plain_text(text_content)
-
-            # Create path relative to the docs directory for source_path
-            # Convert to absolute paths for comparison
-            abs_file_path = file_path.resolve()
-            abs_docs_path = Path("../docs/").resolve()
-
-            try:
-                # Get the relative path from docs directory
-                relative_to_docs = abs_file_path.relative_to(abs_docs_path)
-                relative_path = f"docs/{relative_to_docs.as_posix()}"
-            except ValueError:
-                # If the file is not within docs_path, use a simplified path
-                relative_path = file_path.name
-
-            # Create BookContent object
-            book_content = BookContent(
-                source_path=relative_path,
-                content=plain_text,
-                title=metadata.get('title', ''),
-                metadata=metadata
-            )
-
-            book_contents.append(book_content)
-            log_debug(f"Extracted content from {relative_path}")
-
-        except Exception as e:
-            log_error(f"Error processing file {file_path}: {str(e)}")
-
-    log_info(f"Content extraction completed. Extracted {len(book_contents)} content items")
-    return book_contents
-
-
-def extract_plain_text(mdx_content: str) -> str:
-    """
-    Extract plain text from MDX content by removing JSX components.
-
-    Args:
-        mdx_content: Raw MDX content
-
-    Returns:
-        Plain text content
-    """
-    # Remove JSX components (blocks that start with < and end with >)
-    # This is a simplified approach - for more complex JSX, a proper parser would be needed
-    jsx_pattern = r'<[^>]*>'
-    plain_text = re.sub(jsx_pattern, '', mdx_content)
-
-    # Convert markdown to plain text
-    try:
-        html = markdown(plain_text)
-        # Remove HTML tags to get plain text
-        plain_text = re.sub(r'<[^>]+>', '', html)
-    except Exception:
-        # If markdown conversion fails, return the text without JSX
-        pass
-
-    return plain_text
-
-
-def chunk_text(book_contents: List[BookContent], chunk_size: int = 512, chunk_overlap: int = 50) -> List[TextChunk]:
-    """
-    Chunk the extracted book content into manageable segments.
-
-    Args:
-        book_contents: List of BookContent objects
-        chunk_size: Maximum size of each chunk (default: 512)
-        chunk_overlap: Number of overlapping characters between chunks (default: 50)
-
-    Returns:
-        List of TextChunk objects
-    """
-    log_info(f"Starting text chunking with chunk_size={chunk_size}, overlap={chunk_overlap}")
-
-    text_chunks = []
-    chunk_index = 0
-
-    for book_content in book_contents:
-        content = book_content.content
-        content_id = book_content.id
-
-        # Simple approach: split by sentences or paragraphs
-        # For more sophisticated chunking, we could use libraries like langchain
-        sentences = re.split(r'[.!?]+\s+', content)
-
-        current_chunk = ""
-        current_chunk_size = 0
-
-        for sentence in sentences:
-            sentence_size = len(sentence)
-
-            # If adding this sentence would exceed chunk size
-            if current_chunk_size + sentence_size > chunk_size and current_chunk:
-                # Save the current chunk
-                text_chunk = TextChunk(
-                    content_id=content_id,
-                    text=current_chunk.strip(),
-                    chunk_index=chunk_index,
+            contents.append(
+                BookContent(
+                    source_path=rel_path,
+                    content=plain_text,
+                    title=post.metadata.get("title", ""),
                     metadata={
-                        'source_path': book_content.source_path,
-                        'title': book_content.title,
-                        'original_chunk_size': len(current_chunk)
-                    }
+                        **post.metadata,
+                        "file_mtime": file_path.stat().st_mtime,
+                    },
                 )
-                text_chunks.append(text_chunk)
-                chunk_index += 1
-
-                # Start a new chunk with overlap
-                # Take the end of the current chunk as overlap
-                overlap_start = max(0, len(current_chunk) - chunk_overlap)
-                current_chunk = current_chunk[overlap_start:] + " " + sentence
-                current_chunk_size = len(current_chunk)
-            else:
-                # Add sentence to current chunk
-                if current_chunk:
-                    current_chunk += " " + sentence
-                else:
-                    current_chunk = sentence
-                current_chunk_size += sentence_size + 1  # +1 for space
-
-        # Add the last chunk if it has content
-        if current_chunk.strip():
-            text_chunk = TextChunk(
-                content_id=content_id,
-                text=current_chunk.strip(),
-                chunk_index=chunk_index,
-                metadata={
-                    'source_path': book_content.source_path,
-                    'title': book_content.title,
-                    'original_chunk_size': len(current_chunk)
-                }
             )
-            text_chunks.append(text_chunk)
-            chunk_index += 1
+        except Exception as e:
+            log_error(f"Failed to process {file_path}: {e}")
 
-    log_info(f"Text chunking completed. Created {len(text_chunks)} chunks")
-    return text_chunks
+    return contents
 
 
-def generate_embeddings(text_chunks: List[TextChunk]) -> List[Embedding]:
-    """
-    Generate vector embeddings for text chunks using Cohere.
+def extract_plain_text(mdx: str) -> str:
+    mdx = re.sub(r"<[^>]+>", "", mdx)
+    try:
+        html = markdown(mdx)
+        return re.sub(r"<[^>]+>", "", html)
+    except Exception:
+        return mdx
 
-    Args:
-        text_chunks: List of TextChunk objects
 
-    Returns:
-        List of Embedding objects
-    """
-    log_info(f"Starting embedding generation for {len(text_chunks)} text chunks")
+# -------------------------------------------------------------------
+# CHUNKING
+# -------------------------------------------------------------------
 
-    # Initialize Cohere client
-    cohere_config = get_cohere_config()
-    co = cohere.Client(cohere_config['api_key'])
+def chunk_text(
+    contents: List[BookContent],
+    chunk_size: int,
+    overlap: int,
+) -> List[TextChunk]:
+    chunks = []
+    idx = 0
+
+    for content in contents:
+        sentences = re.split(r"[.!?]\s+", content.content)
+        buf = ""
+
+        for s in sentences:
+            if len(buf) + len(s) > chunk_size:
+                chunks.append(
+                    TextChunk(
+                        content_id=content.id,
+                        text=buf.strip(),
+                        chunk_index=idx,
+                        metadata={
+                            "source_path": content.source_path,
+                            "title": content.title,
+                            "file_mtime": content.metadata["file_mtime"],
+                        },
+                    )
+                )
+                idx += 1
+                buf = buf[-overlap:] + " " + s
+            else:
+                buf += " " + s
+
+        if buf.strip():
+            chunks.append(
+                TextChunk(
+                    content_id=content.id,
+                    text=buf.strip(),
+                    chunk_index=idx,
+                    metadata={
+                        "source_path": content.source_path,
+                        "title": content.title,
+                        "file_mtime": content.metadata["file_mtime"],
+                    },
+                )
+            )
+            idx += 1
+
+    return chunks
+
+
+# -------------------------------------------------------------------
+# EMBEDDINGS
+# -------------------------------------------------------------------
+
+def generate_embeddings(chunks: List[TextChunk]) -> List[Embedding]:
+    cfg = get_cohere_config()
+    co = cohere.Client(cfg["api_key"])
 
     embeddings = []
+    batch = 96
 
-    # Process in batches to avoid hitting API limits
-    batch_size = 96  # Cohere's API limit is typically 96 texts per request
+    for i in range(0, len(chunks), batch):
+        texts = [c.text for c in chunks[i:i + batch]]
+        res = co.embed(
+            texts=texts,
+            model="embed-english-v3.0",
+            input_type="search_document",
+        )
 
-    for i in range(0, len(text_chunks), batch_size):
-        batch = text_chunks[i:i + batch_size]
-        batch_texts = [chunk.text for chunk in batch]
-
-        try:
-            # Generate embeddings
-            response = co.embed(
-                texts=batch_texts,
-                model='embed-english-v3.0',  # Using Cohere's English embedding model
-                input_type="search_document"  # Specify this is for search documents
+        for j, vec in enumerate(res.embeddings):
+            embeddings.append(
+                Embedding(
+                    chunk_id=chunks[i + j].id,
+                    vector=vec,
+                    model_name="embed-english-v3.0",
+                    model_version="3.0",
+                )
             )
 
-            # Create Embedding objects
-            for j, embedding_vector in enumerate(response.embeddings):
-                embedding = Embedding(
-                    chunk_id=batch[j].id,
-                    vector=embedding_vector,
-                    model_name='embed-english-v3.0',
-                    model_version='3.0'
-                )
-                embeddings.append(embedding)
-
-        except Exception as e:
-            log_error(f"Error generating embeddings for batch {i//batch_size + 1}: {str(e)}")
-            # Continue with the next batch
-            continue
-
-    log_info(f"Embedding generation completed. Generated {len(embeddings)} embeddings")
     return embeddings
 
 
-def store_in_qdrant(embeddings: List[Embedding], text_chunks: List[TextChunk]) -> bool:
-    """
-    Store embeddings in Qdrant vector database with proper metadata.
+# -------------------------------------------------------------------
+# STORAGE
+# -------------------------------------------------------------------
 
-    Args:
-        embeddings: List of Embedding objects
-        text_chunks: Corresponding TextChunk objects for metadata
-
-    Returns:
-        True if successful, False otherwise
-    """
-    log_info(f"Starting storage of {len(embeddings)} embeddings in Qdrant")
-
-    # Create Qdrant client
+def store_in_qdrant(embeddings: List[Embedding], chunks: List[TextChunk]) -> bool:
     client = create_qdrant_client()
+    collection = get_or_create_collection(client)
 
-    # Get or create collection (using the specified collection name)
-    collection_name = get_or_create_collection(client)
+    chunk_map = {c.id: c for c in chunks}
 
-    # Create PointStruct objects for upsertion
     points = []
-
-    # Create a mapping from chunk_id to TextChunk for metadata lookup
-    chunk_map = {chunk.id: chunk for chunk in text_chunks}
-
-    for embedding in embeddings:
-        chunk = chunk_map.get(embedding.chunk_id)
-        if not chunk:
-            log_error(f"Could not find text chunk for embedding with chunk_id: {embedding.chunk_id}")
-            continue
-
-        # Get the original book content for additional metadata
-        book_content = None
-        # In a real implementation, we'd have a way to get the original book content
-        # For now, we'll use what's in the chunk metadata
-
-        # Create payload with metadata
-        payload = {
-            'text': chunk.text,
-            'source_path': chunk.metadata.get('source_path', ''),
-            'title': chunk.metadata.get('title', ''),
-            'chunk_index': chunk.chunk_index,
-            'content_id': chunk.content_id
-        }
-
-        # Add any additional metadata from the chunk
-        for key, value in chunk.metadata.items():
-            if key not in payload:
-                payload[key] = value
-
-        # Create PointStruct
-        point = {
-            "id": embedding.chunk_id,
-            "vector": embedding.vector,
-            "payload": payload
-        }
-
-        points.append(point)
-
-    # Convert to Qdrant PointStruct format
-    from qdrant_client.http import models
-    point_structs = [
-        models.PointStruct(
-            id=point["id"],
-            vector=point["vector"],
-            payload=point["payload"]
+    for e in embeddings:
+        c = chunk_map[e.chunk_id]
+        points.append(
+            models.PointStruct(
+                id=e.chunk_id,
+                vector=e.vector,
+                payload={
+                    "text": c.text,
+                    "source_path": c.metadata["source_path"],
+                    "title": c.metadata["title"],
+                    "file_mtime": c.metadata["file_mtime"],
+                    "chunk_index": c.chunk_index,
+                },
+            )
         )
-        for point in points
-    ]
 
-    # Upsert vectors to Qdrant
-    success = upsert_vectors(client, collection_name, point_structs)
-
-    if success:
-        log_info(f"Successfully stored {len(point_structs)} vectors in Qdrant collection '{collection_name}'")
-    else:
-        log_error("Failed to store vectors in Qdrant")
-
-    return success
+    return upsert_vectors(client, collection, points)
 
 
-def main_indexing_pipeline(docs_path: str = "docs/") -> bool:
+# -------------------------------------------------------------------
+# 🔥 CLEAN INCREMENTAL INDEXING (REWRITTEN)
+# -------------------------------------------------------------------
+
+def get_existing_docs(client, collection: str) -> Dict[str, float]:
     """
-    Main orchestrator function that runs the complete indexing pipeline:
-    1. Extract content from MDX files
-    2. Chunk the text
-    3. Generate embeddings
-    4. Store in Qdrant
-
-    Args:
-        docs_path: Path to the docs directory (default: "docs/")
-
     Returns:
-        True if successful, False otherwise
+        { source_path: last_indexed_mtime }
     """
-    log_info("Starting the complete indexing pipeline")
+    records, _ = client.scroll(
+        collection_name=collection,
+        limit=10000,
+        with_payload=True,
+        with_vectors=False,
+    )
 
-    try:
-        # Get indexing configuration
-        config = get_indexing_config()
+    docs = {}
+    for r in records:
+        sp = r.payload.get("source_path")
+        mt = r.payload.get("file_mtime")
+        if sp and mt:
+            docs[sp] = max(docs.get(sp, 0), mt)
 
-        # Step 1: Extract content
-        book_contents = extract_content(docs_path)
-        if not book_contents:
-            log_error("No content extracted, stopping pipeline")
-            return False
+    return docs
 
-        # Step 2: Chunk text
-        text_chunks = chunk_text(
-            book_contents,
-            chunk_size=config['chunk_size'],
-            chunk_overlap=config['chunk_overlap']
+
+def incremental_indexing(docs_path: str = "docs/") -> bool:
+    log_info("Running incremental indexing")
+
+    client = create_qdrant_client()
+    cfg = get_retrieval_config()
+    collection = cfg["collection_name"]
+
+    existing = get_existing_docs(client, collection)
+    contents = extract_content(docs_path)
+
+    to_index = []
+    to_delete = []
+
+    for c in contents:
+        old_mtime = existing.get(c.source_path)
+        new_mtime = c.metadata["file_mtime"]
+
+        if not old_mtime:
+            to_index.append(c)
+        elif new_mtime > old_mtime:
+            to_index.append(c)
+            to_delete.append(c.source_path)
+
+    if not to_index:
+        log_info("No new or updated docs found")
+        return True
+
+    # delete outdated chunks
+    for sp in to_delete:
+        client.delete(
+            collection_name=collection,
+            points_selector=models.Filter(
+                must=[
+                    models.FieldCondition(
+                        key="source_path",
+                        match=models.MatchValue(value=sp),
+                    )
+                ]
+            ),
         )
-        if not text_chunks:
-            log_error("No text chunks created, stopping pipeline")
-            return False
 
-        # Step 3: Generate embeddings
-        embeddings = generate_embeddings(text_chunks)
-        if not embeddings:
-            log_error("No embeddings generated, stopping pipeline")
-            return False
+    idx_cfg = get_indexing_config()
+    chunks = chunk_text(
+        to_index,
+        idx_cfg["chunk_size"],
+        idx_cfg["chunk_overlap"],
+    )
+    embeddings = generate_embeddings(chunks)
 
-        # Step 4: Store in Qdrant
-        success = store_in_qdrant(embeddings, text_chunks)
+    return store_in_qdrant(embeddings, chunks)
 
-        if success:
-            log_info("Indexing pipeline completed successfully")
-        else:
-            log_error("Indexing pipeline failed during storage step")
 
-        return success
+# -------------------------------------------------------------------
+# MAIN
+# -------------------------------------------------------------------
 
-    except Exception as e:
-        log_error(f"Indexing pipeline failed with error: {str(e)}")
-        return False
+def main_indexing_pipeline(docs_path: str = "docs/", incremental: bool = False) -> bool:
+    if incremental:
+        return incremental_indexing(docs_path)
+
+    cfg = get_indexing_config()
+    contents = extract_content(docs_path)
+    chunks = chunk_text(contents, cfg["chunk_size"], cfg["chunk_overlap"])
+    embeddings = generate_embeddings(chunks)
+    return store_in_qdrant(embeddings, chunks)
 
 
 if __name__ == "__main__":
-    # Run the main indexing pipeline
-    success = main_indexing_pipeline()
-    if success:
-        print("Content indexing completed successfully!")
-    else:
-        print("Content indexing failed!")
-        exit(1)
+    ok = main_indexing_pipeline(incremental=True)
+    print("Indexing completed" if ok else "Indexing failed")
